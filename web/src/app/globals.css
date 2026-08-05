@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-forest text-cream font-sans antialiased;
+}
+
+::selection {
+  @apply bg-clay text-cream;
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.3em] text-clay;
+  }
+  .container-page {
+    @apply mx-auto w-full max-w-page px-5 sm:px-8;
+  }
+}
