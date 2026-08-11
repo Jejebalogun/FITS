@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
 import SectionHeading from "./SectionHeading";
 
 type Category = {
@@ -29,11 +33,29 @@ export default function CategoryGrid() {
         link={{ label: "All 8 categories", href: "#categories" }}
       />
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[repeat(3,minmax(7rem,auto))]">
+      <InView
+        as="div"
+        viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+        variants={{
+          hidden: {},
+          visible: {
+            transition: { staggerChildren: 0.16 },
+          },
+        }}
+        className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[repeat(3,minmax(7rem,auto))]"
+      >
         {categories.map((cat) => (
-          <a
+          <motion.a
             key={cat.name}
             href="#"
+            variants={{
+              hidden: { opacity: 0, y: 24 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+              },
+            }}
             className={`group flex flex-col justify-end rounded-2xl p-6 transition-transform hover:-translate-y-1 ${
               cat.featured
                 ? "bg-clay"
@@ -46,9 +68,9 @@ export default function CategoryGrid() {
             {cat.detail && (
               <p className="mt-1 text-sm text-cream/70">{cat.detail}</p>
             )}
-          </a>
+          </motion.a>
         ))}
-      </div>
+      </InView>
     </section>
   );
 }

@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
 import SectionHeading from "./SectionHeading";
 
 const steps = [
@@ -29,10 +33,28 @@ export default function HowItWorks() {
         label="How it works"
         title="Three steps, start to doorstep"
       />
-      <ol className="space-y-5">
-        {steps.map((step) => (
-          <li
+      <InView
+        as="ol"
+        viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+        variants={{
+          hidden: {},
+          visible: {
+            transition: { staggerChildren: 0.3 },
+          },
+        }}
+        className="space-y-5"
+      >
+        {steps.map((step, index) => (
+          <motion.li
             key={step.number}
+            variants={{
+              hidden: { opacity: 0, x: index % 2 === 0 ? 60 : -60 },
+              visible: {
+                opacity: 1,
+                x: 0,
+                transition: { duration: 1, ease: [0.22, 1, 0.36, 1] as const },
+              },
+            }}
             className="grid items-center gap-6 rounded-2xl bg-white p-6 shadow-sm sm:grid-cols-[auto,1fr] lg:grid-cols-[auto,1.2fr,1fr] lg:p-8"
           >
             <span className="font-display text-4xl text-clay sm:text-5xl">
@@ -48,9 +70,9 @@ export default function HowItWorks() {
               className={`hidden h-28 rounded-xl lg:block ${step.tone}`}
               aria-hidden
             />
-          </li>
+          </motion.li>
         ))}
-      </ol>
+      </InView>
     </section>
   );
 }

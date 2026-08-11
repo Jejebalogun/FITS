@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
+
 const secondaryQuotes = [
   {
     quote:
@@ -13,7 +18,11 @@ const secondaryQuotes = [
   },
 ];
 
-export default function Testimonials() {
+export default function Testimonials({
+  secondary = true,
+}: {
+  secondary?: boolean;
+}) {
   return (
     <section className="container-page py-24">
       <div className="mx-auto max-w-3xl text-center">
@@ -36,24 +45,43 @@ export default function Testimonials() {
         </div>
       </div>
 
-      <div className="mt-14 grid gap-5 lg:grid-cols-2">
-        {secondaryQuotes.map((item) => (
-          <figure
-            key={item.name}
-            className="rounded-2xl bg-forest-card p-7"
-          >
-            <blockquote>
-              <p className="leading-relaxed text-cream/85">
-                &ldquo;{item.quote}&rdquo;
-              </p>
-            </blockquote>
-            <figcaption className="mt-5 text-sm">
-              <span className="font-semibold text-cream">{item.name}</span>
-              <span className="text-cream/60"> · {item.role}</span>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
+      {secondary && (
+        <InView
+          viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: { staggerChildren: 0.16 },
+            },
+          }}
+          className="mt-14 grid gap-5 lg:grid-cols-2"
+        >
+          {secondaryQuotes.map((item) => (
+            <motion.figure
+              key={item.name}
+              variants={{
+                hidden: { opacity: 0, y: 24 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+                },
+              }}
+              className="rounded-2xl bg-forest-card p-7"
+            >
+              <blockquote>
+                <p className="leading-relaxed text-cream/85">
+                  &ldquo;{item.quote}&rdquo;
+                </p>
+              </blockquote>
+              <figcaption className="mt-5 text-sm">
+                <span className="font-semibold text-cream">{item.name}</span>
+                <span className="text-cream/60"> · {item.role}</span>
+              </figcaption>
+            </motion.figure>
+          ))}
+        </InView>
+      )}
     </section>
   );
 }

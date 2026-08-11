@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
 import SectionHeading from "./SectionHeading";
 
 const sideArticles = [
@@ -5,6 +9,18 @@ const sideArticles = [
   { category: "Maker Diary", title: "A day in a Kumasi leather workshop", tone: "bg-sand" },
   { category: "Guide", title: "How to buy custom-made, sight unseen", tone: "bg-sage" },
 ];
+
+const bounceTransition = { type: "spring" as const, duration: 1.1, bounce: 0.3 };
+
+const featuredVariants = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { opacity: 1, x: 0, transition: bounceTransition },
+};
+
+const sideItemVariants = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { opacity: 1, x: 0, transition: bounceTransition },
+};
 
 export default function Journal() {
   return (
@@ -16,10 +32,18 @@ export default function Journal() {
         link={{ label: "Read more", href: "#editorial" }}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
+      <InView
+        viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.35 } },
+        }}
+        className="grid gap-6 lg:grid-cols-[1.4fr,1fr]"
+      >
         {/* Featured article */}
-        <a
+        <motion.a
           href="#"
+          variants={featuredVariants}
           className="group overflow-hidden rounded-2xl bg-white shadow-sm transition-transform hover:-translate-y-1"
         >
           <div className="h-56 bg-sand sm:h-72" aria-hidden />
@@ -33,14 +57,21 @@ export default function Journal() {
               bring it to a global audience.
             </p>
           </div>
-        </a>
+        </motion.a>
 
         {/* Side articles */}
-        <div className="flex flex-col gap-6">
+        <motion.div
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.25 } },
+          }}
+          className="flex flex-col gap-6"
+        >
           {sideArticles.map((article) => (
-            <a
+            <motion.a
               key={article.title}
               href="#"
+              variants={sideItemVariants}
               className="group flex flex-1 items-center gap-5 rounded-2xl bg-white p-5 shadow-sm transition-transform hover:-translate-y-1"
             >
               <span
@@ -55,10 +86,10 @@ export default function Journal() {
                   {article.title}
                 </span>
               </span>
-            </a>
+            </motion.a>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </InView>
     </section>
   );
 }

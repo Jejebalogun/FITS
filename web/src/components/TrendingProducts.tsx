@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
 import SectionHeading from "./SectionHeading";
 import ProductCard, { type Product } from "./ProductCard";
 
@@ -42,11 +46,32 @@ export default function TrendingProducts() {
         title="Trending this week"
         link={{ label: "See all", href: "#trending" }}
       />
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <InView
+        viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+        variants={{
+          hidden: {},
+          visible: {
+            transition: { staggerChildren: 0.16 },
+          },
+        }}
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {products.map((product) => (
-          <ProductCard key={product.name} product={product} />
+          <motion.div
+            key={product.name}
+            variants={{
+              hidden: { opacity: 0, y: 24 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+              },
+            }}
+          >
+            <ProductCard product={product} />
+          </motion.div>
         ))}
-      </div>
+      </InView>
     </section>
   );
 }

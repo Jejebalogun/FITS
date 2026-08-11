@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
+
 const pillars = [
   {
     number: "01",
@@ -32,9 +37,30 @@ export default function WhyFits() {
           </p>
         </div>
 
-        <ol className="divide-y divide-forest/15 border-t border-forest">
-          {pillars.map((pillar) => (
-            <li key={pillar.number} className="flex gap-6 py-6">
+        <InView
+          as="ol"
+          viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: { staggerChildren: 0.3 },
+            },
+          }}
+          className="divide-y divide-forest/15 border-t border-forest"
+        >
+          {pillars.map((pillar, index) => (
+            <motion.li
+              key={pillar.number}
+              variants={{
+                hidden: { opacity: 0, x: index % 2 === 0 ? 60 : -60 },
+                visible: {
+                  opacity: 1,
+                  x: 0,
+                  transition: { duration: 1, ease: [0.22, 1, 0.36, 1] as const },
+                },
+              }}
+              className="flex gap-6 py-6"
+            >
               <span className="font-display text-xl text-clay">
                 {pillar.number}
               </span>
@@ -46,9 +72,9 @@ export default function WhyFits() {
                   {pillar.body}
                 </p>
               </div>
-            </li>
+            </motion.li>
           ))}
-        </ol>
+        </InView>
       </div>
     </section>
   );

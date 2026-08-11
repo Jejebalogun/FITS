@@ -1,15 +1,22 @@
-export default function Newsletter() {
+type NewsletterProps = {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+};
+
+export default function Newsletter({
+  eyebrow = "16 / Newsletter",
+  title = "New drops, straight to your inbox",
+  description = "Weekly creator spotlights, fresh collections and early access to limited pieces.",
+}: NewsletterProps) {
   return (
     <section className="container-page pb-20">
       <div className="rounded-3xl bg-forest-deep px-6 py-16 text-center sm:px-12">
-        <p className="eyebrow mb-4">16 / Newsletter</p>
+        <p className="eyebrow mb-4">{eyebrow}</p>
         <h2 className="font-display text-3xl text-cream sm:text-4xl">
-          New drops, straight to your inbox
+          {title}
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-cream/70">
-          Weekly creator spotlights, fresh collections and early access to
-          limited pieces.
-        </p>
+        <p className="mx-auto mt-4 max-w-md text-cream/70">{description}</p>
         <form
           className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row"
           action="#"

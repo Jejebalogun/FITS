@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "motion/react";
+import { InView } from "./core/in-view";
+
 const stats = [
   { value: "10 photos", detail: "per listing, auto-optimised" },
   { value: "0 upfront", detail: "commission only on sales" },
@@ -26,17 +31,34 @@ export default function CreatorCta() {
           </a>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {stats.map((stat) => (
-            <div
+        <InView
+          viewOptions={{ once: true, margin: "0px 0px -50% 0px" }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: { staggerChildren: 0.3 },
+            },
+          }}
+          className="flex flex-col gap-4"
+        >
+          {stats.map((stat, index) => (
+            <motion.div
               key={stat.value}
+              variants={{
+                hidden: { opacity: 0, x: index % 2 === 0 ? 60 : -60 },
+                visible: {
+                  opacity: 1,
+                  x: 0,
+                  transition: { duration: 1, ease: [0.22, 1, 0.36, 1] as const },
+                },
+              }}
               className="rounded-2xl bg-cream/15 p-6 backdrop-blur-sm"
             >
               <p className="font-display text-2xl text-cream">{stat.value}</p>
               <p className="mt-1 text-sm text-cream/80">{stat.detail}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </InView>
       </div>
     </section>
   );

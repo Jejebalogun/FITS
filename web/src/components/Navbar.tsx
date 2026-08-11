@@ -1,19 +1,21 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navLinks = [
-  { label: "Home", href: "#home", active: true },
-  { label: "Shop", href: "#categories" },
-  { label: "Creators", href: "#become-a-creator" },
-  { label: "Collections", href: "#collections" },
-  { label: "Editorial", href: "#editorial" },
-  { label: "Regions", href: "#categories" },
+  { label: "Home", href: "/" },
+  { label: "Shop", href: "/shop" },
+  { label: "Creators", href: "/creators" },
+  { label: "Collections", href: "/collections" },
+  { label: "Editorial", href: "/editorial" },
+  { label: "Regions", href: "/regions" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-forest/95 backdrop-blur">
@@ -40,7 +42,7 @@ export default function Navbar() {
                 <a
                   href={link.href}
                   className={`text-sm transition-colors hover:text-clay ${
-                    link.active ? "text-clay" : "text-cream"
+                    pathname === link.href ? "text-clay" : "text-cream"
                   }`}
                 >
                   {link.label}
@@ -93,7 +95,7 @@ export default function Navbar() {
                     href={link.href}
                     onClick={() => setOpen(false)}
                     className={`block rounded-lg px-3 py-2.5 hover:bg-forest-card ${
-                      link.active ? "text-clay" : "text-cream"
+                      pathname === link.href ? "text-clay" : "text-cream"
                     }`}
                   >
                     {link.label}
