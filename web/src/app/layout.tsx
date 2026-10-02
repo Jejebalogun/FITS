@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo_Black, Inter, Space_Mono } from "next/font/google";
+
+import { SessionProvider } from "@/components/auth/SessionProvider";
 import "./globals.css";
 
 const display = Archivo_Black({
@@ -33,7 +35,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${display.variable} ${sans.variable} ${mono.variable}`}>
-        {children}
+        {/* Signed-in state is read on every page, marketing and marketplace alike. */}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

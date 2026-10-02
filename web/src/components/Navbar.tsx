@@ -4,6 +4,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { useSession } from "@/components/auth/SessionProvider";
+
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/shop" },
@@ -16,6 +18,7 @@ const navLinks = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useSession();
 
   return (
     <header className="sticky top-0 z-50 bg-forest/95 backdrop-blur">
@@ -52,9 +55,24 @@ export default function Navbar() {
           </ul>
 
           <div className="hidden items-center gap-6 lg:flex">
-            <a href="#" className="text-sm text-cream hover:text-clay">
-              Sign in
-            </a>
+            {user ? (
+              <a
+                href="/shop"
+                className="flex items-center gap-2 text-sm text-cream hover:text-clay"
+              >
+                <span
+                  aria-hidden
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-sage text-xs font-semibold text-forest"
+                >
+                  {user.email.charAt(0).toUpperCase()}
+                </span>
+                <span className="max-w-[12rem] truncate">{user.email}</span>
+              </a>
+            ) : (
+              <a href="/login" className="text-sm text-cream hover:text-clay">
+                Sign in
+              </a>
+            )}
             <a
               href="#become-a-creator"
               className="rounded-full bg-clay px-5 py-2.5 text-sm font-semibold text-cream transition-colors hover:bg-clay-deep"
@@ -104,8 +122,8 @@ export default function Navbar() {
               ))}
             </ul>
             <div className="mt-4 flex items-center gap-4 px-3">
-              <a href="#" className="text-cream hover:text-clay">
-                Sign in
+              <a href={user ? "/shop" : "/login"} className="text-cream hover:text-clay">
+                {user ? user.email : "Sign in"}
               </a>
               <a
                 href="#become-a-creator"

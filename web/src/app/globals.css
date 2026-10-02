@@ -22,3 +22,27 @@ body {
     @apply mx-auto w-full max-w-page px-5 sm:px-8;
   }
 }
+
+/*
+ * Price range: two inputs sit on top of each other, so the track must be
+ * invisible and ignore the pointer — only the thumbs are grabbable.
+ */
+.price-thumb {
+  @apply pointer-events-none appearance-none bg-transparent;
+}
+
+.price-thumb::-webkit-slider-thumb {
+  @apply pointer-events-auto h-5 w-5 cursor-grab appearance-none rounded-full border-2 border-forest bg-white;
+}
+
+.price-thumb::-moz-range-thumb {
+  @apply pointer-events-auto h-5 w-5 cursor-grab appearance-none rounded-full border-2 border-forest bg-white;
+}
+
+.price-thumb:focus-visible::-webkit-slider-thumb {
+  @apply ring-2 ring-forest ring-offset-2;
+}
+
+.price-thumb:focus-visible::-moz-range-thumb {
+  @apply ring-2 ring-forest ring-offset-2;
+}

@@ -21,7 +21,9 @@ const config: Config = {
           DEFAULT: "#C05B28",
           deep: "#A84E20",
           soft: "#CD7B4F",
+          wash: "#F3DCCB",
         },
+        moss: "#7D9B7A",
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
