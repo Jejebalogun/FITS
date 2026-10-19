@@ -21,7 +21,7 @@ export default function Home() {
       <main>
         <Hero />
         <CategoryGrid />
-
+{/* comment */}
         <div className="bg-cream">
           <WhyFits />
           <TrendingProducts />
