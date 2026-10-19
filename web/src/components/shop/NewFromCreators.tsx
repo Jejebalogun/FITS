@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 
 import SectionHeader from "@/components/shop/SectionHeader";
 import DeliveryBadge from "@/components/marketplace/DeliveryBadge";
+import SaveButton from "@/components/marketplace/SaveButton";
 import { useMarket } from "@/components/marketplace/MarketProvider";
 import { newFromCreators } from "@/data/shop";
 import { formatMoney } from "@/data/markets";
@@ -12,7 +12,6 @@ import { products } from "@/data/marketplace";
 
 export default function NewFromCreators() {
   const { market } = useMarket();
-  const [saved, setSaved] = useState<string[]>([]);
 
   const picks = newFromCreators
     .map((id) => products.find((product) => product.id === id))
@@ -21,14 +20,6 @@ export default function NewFromCreators() {
     );
 
   const verifiedCount = products.filter((product) => product.verified).length;
-
-  function toggle(id: string) {
-    setSaved((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
-    );
-  }
 
   return (
     <section className="mx-auto w-full max-w-[90rem] px-6 py-14">
@@ -42,7 +33,6 @@ export default function NewFromCreators() {
 
       <ul className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {picks.map((product) => {
-          const isSaved = saved.includes(product.id);
           return (
             <li key={product.id}>
               <article>
@@ -54,21 +44,7 @@ export default function NewFromCreators() {
                     className="absolute inset-0"
                     aria-label={product.name}
                   />
-                  <button
-                    type="button"
-                    onClick={() => toggle(product.id)}
-                    aria-pressed={isSaved}
-                    aria-label={
-                      isSaved
-                        ? `Remove ${product.name} from saved`
-                        : `Save ${product.name}`
-                    }
-                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-cream/95 text-lg transition-transform hover:scale-105"
-                  >
-                    <span className={isSaved ? "text-clay" : "text-forest/40"}>
-                      {isSaved ? "♥" : "♡"}
-                    </span>
-                  </button>
+                  <SaveButton product={product} />
 
                   <DeliveryBadge
                     product={product}

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { useMarket } from "@/components/marketplace/MarketProvider";
 import { convert, formatAmount } from "@/data/markets";
-import { countryFacets, type Category, type Country } from "@/data/marketplace";
+import { countryFacets, type Country } from "@/data/marketplace";
 import {
   PRICE_MAX_GBP,
   countActiveFilters,
@@ -15,14 +15,15 @@ const TYPES_SHOWN = 5;
 const DELIVERY_WINDOWS = [10, 14, 21];
 
 type FilterSidebarProps = {
-  category: Category;
+  /** The type facet, with counts. A category passes its own; search derives one. */
+  types: { label: string; count: number }[];
   filters: Filters;
   onChange: (next: Filters) => void;
   onClear: () => void;
 };
 
 export default function FilterSidebar({
-  category,
+  types,
   filters,
   onChange,
   onClear,
@@ -32,10 +33,8 @@ export default function FilterSidebar({
   const [showAllTypes, setShowAllTypes] = useState(false);
 
   const activeCount = countActiveFilters(filters);
-  const visibleTypes = showAllTypes
-    ? category.types
-    : category.types.slice(0, TYPES_SHOWN);
-  const hiddenTypeCount = category.types.length - TYPES_SHOWN;
+  const visibleTypes = showAllTypes ? types : types.slice(0, TYPES_SHOWN);
+  const hiddenTypeCount = types.length - TYPES_SHOWN;
 
   function toggleType(label: string) {
     const types = filters.types.includes(label)
@@ -67,7 +66,7 @@ export default function FilterSidebar({
       </div>
 
       {/* Type */}
-      {category.types.length > 0 && (
+      {types.length > 0 && (
         <section className="mt-6">
           <button
             type="button"

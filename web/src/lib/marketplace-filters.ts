@@ -1,10 +1,11 @@
-import type { Market } from "@/data/markets";
+import { convert, formatAmount, type Market } from "@/data/markets";
 import type { Country, Product } from "@/data/marketplace";
 
 /** Upper bound of the price filter, in GBP. At the top the range means "and up". */
 export const PRICE_MAX_GBP = 250;
 
 export type SortKey =
+  | "relevant"
   | "recommended"
   | "arriving"
   | "price-asc"
@@ -19,6 +20,12 @@ export const sortOptions: { key: SortKey; label: string }[] = [
   { key: "price-desc", label: "Price: high to low" },
   { key: "rating", label: "Top rated" },
   { key: "newest", label: "Newest" },
+];
+
+/** Search leads with relevance, which is the order results arrive in. */
+export const searchSortOptions: { key: SortKey; label: string }[] = [
+  { key: "relevant", label: "Most relevant" },
+  ...sortOptions.filter((option) => option.key !== "recommended"),
 ];
 
 export type Filters = {
@@ -99,6 +106,8 @@ export function sortProducts(products: Product[], sort: SortKey) {
       return sorted.sort((a, b) => a.addedDaysAgo - b.addedDaysAgo);
     case "arriving":
       return sorted.sort((a, b) => daysToArrive(a) - daysToArrive(b));
+    case "relevant":
+      return sorted;
     case "recommended":
     default:
       // Verified first, then rating weighted by how many people rated it.
@@ -120,4 +129,101 @@ export function countActiveFilters(filters: Filters) {
   if (filters.customSizes) count += 1;
   if (filters.minRating !== null) count += 1;
   return count;
+}
+
+/** One active filter, described for a chip and for a sentence. */
+export type FilterPart = {
+  key: string;
+  /** Chip text: "Arrives within 21 days". */
+  label: string;
+  /** How a sentence names it: "the delivery window". */
+  noun: string;
+  kind: "type" | "other";
+  /** The filters with just this one taken off. */
+  without: Filters;
+};
+
+export function priceLabel(filters: Filters, market: Market) {
+  return `${formatAmount(convert(filters.minGBP, market), market)} – ${formatAmount(
+    convert(filters.maxGBP, market),
+    market,
+  )}${filters.maxGBP >= PRICE_MAX_GBP ? "+" : ""}`;
+}
+
+export function filterParts(filters: Filters, market: Market): FilterPart[] {
+  const parts: FilterPart[] = filters.types.map((type) => ({
+    key: `type:${type}`,
+    label: type,
+    noun: "the type",
+    kind: "type",
+    without: { ...filters, types: filters.types.filter((item) => item !== type) },
+  }));
+
+  if (filters.minGBP > 0 || filters.maxGBP < PRICE_MAX_GBP) {
+    parts.push({
+      key: "price",
+      label: priceLabel(filters, market),
+      noun: "the price range",
+      kind: "other",
+      without: { ...filters, minGBP: 0, maxGBP: PRICE_MAX_GBP },
+    });
+  }
+  if (filters.withinDays !== null) {
+    parts.push({
+      key: "within",
+      label: `Arrives within ${filters.withinDays} days`,
+      noun: "the delivery window",
+      kind: "other",
+      without: { ...filters, withinDays: null },
+    });
+  }
+  for (const country of filters.countries) {
+    parts.push({
+      key: `country:${country}`,
+      label: country,
+      noun: `made in ${country}`,
+      kind: "other",
+      without: {
+        ...filters,
+        countries: filters.countries.filter((item) => item !== country),
+      },
+    });
+  }
+  if (filters.verifiedOnly) {
+    parts.push({
+      key: "verified",
+      label: "Verified only",
+      noun: "verified creators only",
+      kind: "other",
+      without: { ...filters, verifiedOnly: false },
+    });
+  }
+  if (filters.shipsToMarket) {
+    parts.push({
+      key: "ships",
+      label: `Ships to ${market.placeName}`,
+      noun: `shipping to ${market.placeName}`,
+      kind: "other",
+      without: { ...filters, shipsToMarket: false },
+    });
+  }
+  if (filters.customSizes) {
+    parts.push({
+      key: "custom",
+      label: "Takes custom sizes",
+      noun: "custom sizes",
+      kind: "other",
+      without: { ...filters, customSizes: false },
+    });
+  }
+  if (filters.minRating !== null) {
+    parts.push({
+      key: "rating",
+      label: `${filters.minRating} stars & up`,
+      noun: "the rating",
+      kind: "other",
+      without: { ...filters, minRating: null },
+    });
+  }
+  return parts;
 }

@@ -1,4 +1,4 @@
-import type { Product } from "@/data/marketplace";
+import { creatorOf, isOpenForOrders, type Product } from "@/data/marketplace";
 
 /**
  * The committed delivery window, shown before purchase.
@@ -18,6 +18,16 @@ export default function DeliveryBadge({
   mode?: "arrives" | "made";
   className?: string;
 }) {
+  if (!isOpenForOrders(creatorOf(product))) {
+    return (
+      <span
+        className={`rounded-full bg-cream px-3 py-1.5 text-xs font-medium text-clay-deep ${className}`}
+      >
+        Not yet orderable
+      </span>
+    );
+  }
+
   if (!product.delivery) {
     return (
       <span

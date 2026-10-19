@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo_Black, Inter, Space_Mono } from "next/font/google";
 
 import { SessionProvider } from "@/components/auth/SessionProvider";
+import { ShopperProvider } from "@/components/marketplace/ShopperProvider";
 import "./globals.css";
 
 const display = Archivo_Black({
@@ -36,7 +37,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${display.variable} ${sans.variable} ${mono.variable}`}>
         {/* Signed-in state is read on every page, marketing and marketplace alike. */}
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {/* Held above the pages so the cart count does not reset on navigation. */}
+          <ShopperProvider>{children}</ShopperProvider>
+        </SessionProvider>
       </body>
     </html>
   );

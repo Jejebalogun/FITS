@@ -4,20 +4,17 @@ import Link from "next/link";
 
 import DeliveryBadge from "@/components/marketplace/DeliveryBadge";
 import { useMarket } from "@/components/marketplace/MarketProvider";
+import SaveButton from "@/components/marketplace/SaveButton";
 import { formatMoney } from "@/data/markets";
 import type { Product } from "@/data/marketplace";
 
 type CardProps = {
   product: Product;
-  saved: boolean;
-  onToggleSave: (id: string) => void;
   layout?: "grid" | "list";
 };
 
 export default function MarketplaceProductCard({
   product,
-  saved,
-  onToggleSave,
   layout = "grid",
 }: CardProps) {
   const { market } = useMarket();
@@ -36,17 +33,7 @@ export default function MarketplaceProductCard({
           aria-label={product.name}
         />
 
-        <button
-          type="button"
-          onClick={() => onToggleSave(product.id)}
-          aria-pressed={saved}
-          aria-label={saved ? `Remove ${product.name} from saved` : `Save ${product.name}`}
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-cream/95 text-lg transition-transform hover:scale-105"
-        >
-          <span className={saved ? "text-clay" : "text-forest/40"}>
-            {saved ? "♥" : "♡"}
-          </span>
-        </button>
+        <SaveButton product={product} />
 
         <DeliveryBadge product={product} className="absolute bottom-3 left-3" />
       </div>
@@ -71,12 +58,16 @@ export default function MarketplaceProductCard({
           <p className="font-semibold text-forest">
             {formatMoney(product.priceGBP, market)}
           </p>
-          <p className="text-sm text-forest/60">
-            <span aria-hidden className="text-clay">
-              ★
-            </span>{" "}
-            {product.rating.toFixed(1)} ({product.reviews})
-          </p>
+          {product.reviews > 0 ? (
+            <p className="text-sm text-forest/60">
+              <span aria-hidden className="text-clay">
+                ★
+              </span>{" "}
+              {product.rating.toFixed(1)} ({product.reviews})
+            </p>
+          ) : (
+            <p className="text-sm text-forest/60">New</p>
+          )}
         </div>
       </div>
     </article>

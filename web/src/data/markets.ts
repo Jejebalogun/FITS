@@ -2,7 +2,7 @@
 // whole marketplace, so it lives in one place. Prices are held in GBP and
 // converted; a real build would price per market rather than convert at render.
 
-export type MarketCode = "GB" | "NG" | "GH" | "US";
+export type MarketCode = "GB" | "NG" | "GH" | "US" | "CA";
 
 export type Market = {
   code: MarketCode;
@@ -21,6 +21,13 @@ export type Market = {
   rate: number;
   /** Prices are rounded to this step, so converted figures look priced, not calculated. */
   step: number;
+  /**
+   * Import duty and tax collected at checkout, as a share of pieces plus
+   * shipping. Placeholder rates until a duty calculator is wired in.
+   */
+  dutyRate: number;
+  /** Summary line for that charge: "UK import duty and VAT". */
+  dutyLabel: string;
 };
 
 export const markets: Market[] = [
@@ -35,6 +42,8 @@ export const markets: Market[] = [
     placeName: "the UK",
     rate: 1,
     step: 1,
+    dutyRate: 0.1,
+    dutyLabel: "UK import duty and VAT",
   },
   {
     code: "NG",
@@ -47,6 +56,8 @@ export const markets: Market[] = [
     placeName: "Nigeria",
     rate: 2000,
     step: 500,
+    dutyRate: 0.2,
+    dutyLabel: "Nigerian import duty",
   },
   {
     code: "GH",
@@ -59,6 +70,8 @@ export const markets: Market[] = [
     placeName: "Ghana",
     rate: 18.9,
     step: 5,
+    dutyRate: 0.2,
+    dutyLabel: "Ghanaian import duty",
   },
   {
     code: "US",
@@ -71,6 +84,22 @@ export const markets: Market[] = [
     placeName: "the US",
     rate: 1.27,
     step: 1,
+    dutyRate: 0.08,
+    dutyLabel: "US import duty",
+  },
+  {
+    code: "CA",
+    country: "Canada",
+    flag: "🇨🇦",
+    currency: "CAD",
+    symbol: "CA$",
+    spaceAfterSymbol: false,
+    moneyName: "Canadian dollars",
+    placeName: "Canada",
+    rate: 1.74,
+    step: 1,
+    dutyRate: 0.13,
+    dutyLabel: "Canadian duty and GST",
   },
 ];
 
@@ -93,9 +122,21 @@ export function formatMoney(priceGBP: number, market: Market) {
     : `${market.symbol}${digits}`;
 }
 
-/** Formats an already-converted figure, for the price filter's own inputs. */
-export function formatAmount(amount: number, market: Market) {
-  const digits = amount.toLocaleString("en-GB");
+/**
+ * Formats an already-converted figure. Whole amounts drop the decimals ("£27"),
+ * anything else shows two places ("£6.40").
+ */
+export function formatAmount(
+  amount: number,
+  market: Market,
+  /** Always show pence, for a column of figures that must line up. */
+  options: { cents?: boolean } = {},
+) {
+  const whole = Number.isInteger(amount) && !(options.cents && market.step <= 1);
+  const digits = amount.toLocaleString("en-GB", {
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
   return market.spaceAfterSymbol
     ? `${market.symbol} ${digits}`
     : `${market.symbol}${digits}`;

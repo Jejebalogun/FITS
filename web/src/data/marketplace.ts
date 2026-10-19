@@ -35,6 +35,59 @@ export type Product = {
   /** Tonal stand-in until product photography lands. */
   tone: string;
   addedDaysAgo: number;
+  /** Colourways the creator offers, first is the default. None means one look. */
+  colours?: Colour[];
+  /** Overrides the sizes the category would offer. */
+  sizes?: string[];
+  /** How many photos the listing has. Defaults to four. */
+  photos?: number;
+  /** Set when the last one sells — a cart holding it has to say so. */
+  soldOut?: boolean;
+  /** For ready pieces in short supply: "3 left". */
+  stockLeft?: number;
+  /** The price before a reduction, so saved lists can say it dropped. */
+  priceWasGBP?: number;
+};
+
+export type Colour = { name: string; hex: string };
+
+export type Creator = {
+  slug: string;
+  name: string;
+  /** How copy addresses them: "Note to Yinka", "Kofi has 3 similar pieces". */
+  shortName: string;
+  city: string;
+  country: Country;
+  verified: boolean;
+  craft: string;
+  rating: number;
+  reviews: number;
+  /**
+   * Size of the whole shop, as the storefront would report it. Like the facet
+   * counts, this is the designer's figure, not a count of the mock catalogue.
+   */
+  pieceCount: number;
+  followers: number;
+  tone: string;
+  /** One parcel from this creator, in GBP. */
+  shipping: { domesticGBP: number; internationalGBP: number };
+  /** Time in transit once a piece is made, or straight away if it is ready. */
+  transitDays: { minDays: number; maxDays: number };
+  /** Ready pieces leave the workshop within this many days. */
+  dispatchDays: number;
+  /**
+   * FITS confirms identity before a shop can take orders. Separate from the
+   * paid verified badge: a shop can be confirmed without the badge.
+   */
+  identity: "confirmed" | "pending";
+  /** "On FITS since 2024". */
+  memberSince: number;
+  /** Set for a brand-new shop, which says "joined 3 days ago" instead. */
+  joinedDaysAgo?: number;
+  /** Share of orders that arrived inside the promised window. Unset until there are orders. */
+  onTimeRate?: number;
+  /** Typical time to answer a message. Unset until there are messages. */
+  replyHours?: number;
 };
 
 export type Category = {
@@ -142,6 +195,201 @@ export const countryFacets: { country: Country; count: number }[] = [
 
 const ALL: MarketCode[] = ["GB", "NG", "GH", "US"];
 const AFRICA: MarketCode[] = ["NG", "GH"];
+/** Yinka has not opened Ghana, as the product page designs show. */
+const YINKA: MarketCode[] = ["NG", "GB", "US"];
+/** The few shops that already send to Canada. */
+const WITH_CANADA: MarketCode[] = [...ALL, "CA"];
+
+export const creators: Creator[] = [
+  {
+    slug: "yinka-adeyemi",
+    name: "Yinka Adeyemi",
+    shortName: "Yinka",
+    city: "Ilorin",
+    country: "Nigeria",
+    verified: true,
+    craft: "Adire and aso-oke",
+    rating: 4.9,
+    reviews: 312,
+    pieceCount: 214,
+    followers: 3200,
+    tone: "bg-[#6E2434]",
+    shipping: { domesticGBP: 2, internationalGBP: 9 },
+    transitDays: { minDays: 4, maxDays: 6 },
+    dispatchDays: 2,
+    identity: "confirmed",
+    memberSince: 2024,
+    onTimeRate: 96,
+    replyHours: 4,
+  },
+  {
+    slug: "adire-lab-abeokuta",
+    name: "Adire Lab Abeokuta",
+    shortName: "Adire Lab",
+    city: "Abeokuta",
+    country: "Nigeria",
+    verified: true,
+    craft: "Indigo dyeing",
+    rating: 4.8,
+    reviews: 140,
+    pieceCount: 88,
+    followers: 1400,
+    tone: "bg-[#2C3E6B]",
+    shipping: { domesticGBP: 2, internationalGBP: 9 },
+    transitDays: { minDays: 4, maxDays: 6 },
+    dispatchDays: 2,
+    identity: "confirmed",
+    memberSince: 2024,
+    onTimeRate: 94,
+    replyHours: 6,
+  },
+  {
+    slug: "awa-diop",
+    name: "Awa Diop",
+    shortName: "Awa",
+    city: "Dakar",
+    country: "Senegal",
+    verified: false,
+    craft: "Batik and raffia",
+    rating: 0,
+    reviews: 0,
+    pieceCount: 6,
+    followers: 14,
+    tone: "bg-[#8C5A3C]",
+    shipping: { domesticGBP: 3, internationalGBP: 12 },
+    transitDays: { minDays: 6, maxDays: 9 },
+    dispatchDays: 3,
+    identity: "pending",
+    memberSince: 2026,
+    joinedDaysAgo: 3,
+  },
+  {
+    slug: "kofi-ampah-studio",
+    name: "Kofi Ampah Studio",
+    shortName: "Kofi",
+    city: "Kumasi",
+    country: "Ghana",
+    verified: true,
+    craft: "Kente and adinkra prints",
+    rating: 4.7,
+    reviews: 188,
+    pieceCount: 103,
+    followers: 2100,
+    tone: "bg-[#7A5A1E]",
+    shipping: { domesticGBP: 2, internationalGBP: 11 },
+    transitDays: { minDays: 3, maxDays: 6 },
+    dispatchDays: 2,
+    identity: "confirmed",
+    memberSince: 2023,
+    onTimeRate: 93,
+    replyHours: 5,
+  },
+  {
+    slug: "akosua-mensah",
+    name: "Akosua Mensah",
+    shortName: "Akosua",
+    city: "Accra",
+    country: "Ghana",
+    verified: true,
+    craft: "Knitwear and baskets",
+    rating: 4.8,
+    reviews: 177,
+    pieceCount: 64,
+    followers: 1100,
+    tone: "bg-[#8A6A2F]",
+    shipping: { domesticGBP: 2, internationalGBP: 11 },
+    transitDays: { minDays: 3, maxDays: 6 },
+    dispatchDays: 1,
+    identity: "confirmed",
+    memberSince: 2024,
+    onTimeRate: 97,
+    replyHours: 3,
+  },
+  {
+    slug: "fatima-bello-beads",
+    name: "Fatima Bello Beads",
+    shortName: "Fatima",
+    city: "Kano",
+    country: "Nigeria",
+    verified: true,
+    craft: "Wedding and waist beads",
+    rating: 4.9,
+    reviews: 285,
+    pieceCount: 140,
+    followers: 2700,
+    tone: "bg-[#C08B3E]",
+    shipping: { domesticGBP: 2, internationalGBP: 7 },
+    transitDays: { minDays: 4, maxDays: 6 },
+    dispatchDays: 2,
+    identity: "confirmed",
+    memberSince: 2023,
+    onTimeRate: 98,
+    replyHours: 2,
+  },
+  {
+    slug: "wanjiru-leather",
+    name: "Wanjiru Leather",
+    shortName: "Wanjiru",
+    city: "Nairobi",
+    country: "Kenya",
+    verified: true,
+    craft: "Hand-stitched leather",
+    rating: 4.8,
+    reviews: 119,
+    pieceCount: 46,
+    followers: 860,
+    tone: "bg-[#8B5A2B]",
+    shipping: { domesticGBP: 3, internationalGBP: 12 },
+    transitDays: { minDays: 5, maxDays: 8 },
+    dispatchDays: 2,
+    identity: "confirmed",
+    memberSince: 2024,
+    onTimeRate: 95,
+    replyHours: 8,
+  },
+  {
+    slug: "adaeze-crochet",
+    name: "Adaeze Crochet",
+    shortName: "Adaeze",
+    city: "Enugu",
+    country: "Nigeria",
+    verified: true,
+    craft: "Crochet and knit",
+    rating: 4.8,
+    reviews: 249,
+    pieceCount: 72,
+    followers: 1900,
+    tone: "bg-[#C9AE8E]",
+    shipping: { domesticGBP: 2, internationalGBP: 9 },
+    transitDays: { minDays: 4, maxDays: 6 },
+    dispatchDays: 2,
+    identity: "confirmed",
+    memberSince: 2024,
+    onTimeRate: 96,
+    replyHours: 4,
+  },
+  {
+    slug: "kwame-osei",
+    name: "Kwame Osei",
+    shortName: "Kwame",
+    city: "Tamale",
+    country: "Ghana",
+    verified: false,
+    craft: "Prints, soaps and carving",
+    rating: 4.5,
+    reviews: 101,
+    pieceCount: 38,
+    followers: 310,
+    tone: "bg-[#B4702C]",
+    shipping: { domesticGBP: 2, internationalGBP: 10 },
+    transitDays: { minDays: 4, maxDays: 7 },
+    dispatchDays: 3,
+    identity: "confirmed",
+    memberSince: 2025,
+    onTimeRate: 88,
+    replyHours: 12,
+  },
+];
 
 export const products: Product[] = [
   // --- Fashion -------------------------------------------------------------
@@ -158,9 +406,15 @@ export const products: Product[] = [
     category: "fashion",
     type: "Dresses & kaftans",
     customSizes: true,
-    shipsTo: ALL,
+    shipsTo: YINKA,
     tone: "bg-[#6E2434]",
     addedDaysAgo: 4,
+    photos: 9,
+    colours: [
+      { name: "Deep indigo", hex: "#1F2A5C" },
+      { name: "Sky indigo", hex: "#5B7DB1" },
+      { name: "Rust", hex: "#A85F32" },
+    ],
   },
   {
     id: "aso-oke-wrap-dress",
@@ -168,16 +422,21 @@ export const products: Product[] = [
     creator: "Yinka Adeyemi",
     country: "Nigeria",
     verified: true,
-    priceGBP: 34,
+    priceGBP: 29,
+    priceWasGBP: 34,
     rating: 4.8,
     reviews: 41,
     delivery: { minDays: 14, maxDays: 14 },
     category: "fashion",
     type: "Dresses & kaftans",
     customSizes: true,
-    shipsTo: ALL,
+    shipsTo: YINKA,
     tone: "bg-[#1F4E79]",
     addedDaysAgo: 9,
+    colours: [
+      { name: "Blue and wine", hex: "#1F4E79" },
+      { name: "Gold and cream", hex: "#C9A35B" },
+    ],
   },
   {
     id: "two-piece-knit-set",
@@ -195,6 +454,10 @@ export const products: Product[] = [
     shipsTo: ALL,
     tone: "bg-[#8A6A2F]",
     addedDaysAgo: 2,
+    colours: [
+      { name: "Ochre", hex: "#B8862F" },
+      { name: "Forest", hex: "#2F5A4C" },
+    ],
   },
   {
     id: "kente-wrap-skirt",
@@ -226,7 +489,7 @@ export const products: Product[] = [
     category: "fashion",
     type: "Agbada & menswear",
     customSizes: true,
-    shipsTo: ALL,
+    shipsTo: YINKA,
     tone: "bg-[#2F5A4C]",
     addedDaysAgo: 23,
   },
@@ -281,6 +544,62 @@ export const products: Product[] = [
     tone: "bg-[#3B5E7A]",
     addedDaysAgo: 12,
   },
+  {
+    id: "kente-trim-two-piece",
+    name: "Kente-trim two-piece",
+    creator: "Kofi Ampah Studio",
+    country: "Ghana",
+    verified: true,
+    priceGBP: 23,
+    rating: 4.7,
+    reviews: 38,
+    delivery: null,
+    category: "fashion",
+    type: "Two-piece sets",
+    customSizes: false,
+    shipsTo: ALL,
+    tone: "bg-[#7A5A1E]",
+    addedDaysAgo: 3,
+    colours: [{ name: "Gold and green", hex: "#B08A2E" }],
+  },
+  {
+    id: "adinkra-print-shirt",
+    name: "Adinkra print shirt",
+    creator: "Kofi Ampah Studio",
+    country: "Ghana",
+    verified: true,
+    priceGBP: 21,
+    rating: 4.6,
+    reviews: 24,
+    delivery: { minDays: 7, maxDays: 10 },
+    category: "fashion",
+    type: "Tops & shirts",
+    customSizes: true,
+    shipsTo: ALL,
+    tone: "bg-[#3F3A2E]",
+    addedDaysAgo: 11,
+  },
+  {
+    id: "adire-fabric-yard",
+    name: "Hand-dyed adire fabric, by the yard",
+    creator: "Adire Lab Abeokuta",
+    country: "Nigeria",
+    verified: true,
+    priceGBP: 12,
+    rating: 4.8,
+    reviews: 44,
+    delivery: { minDays: 6, maxDays: 9 },
+    category: "fashion",
+    type: "Wrappers & fabric",
+    customSizes: false,
+    shipsTo: ALL,
+    tone: "bg-[#2C3E6B]",
+    addedDaysAgo: 5,
+    colours: [
+      { name: "Deep indigo", hex: "#1F2A5C" },
+      { name: "Sky indigo", hex: "#5B7DB1" },
+    ],
+  },
 
   // --- Beadwork & jewellery -----------------------------------------------
   {
@@ -296,7 +615,7 @@ export const products: Product[] = [
     category: "beadwork-jewellery",
     type: "Waist beads",
     customSizes: true,
-    shipsTo: ALL,
+    shipsTo: WITH_CANADA,
     tone: "bg-[#C08B3E]",
     addedDaysAgo: 3,
   },
@@ -313,9 +632,10 @@ export const products: Product[] = [
     category: "beadwork-jewellery",
     type: "Cuffs & bangles",
     customSizes: false,
-    shipsTo: ALL,
+    shipsTo: WITH_CANADA,
     tone: "bg-[#2E7C8A]",
     addedDaysAgo: 8,
+    stockLeft: 2,
   },
   {
     id: "layered-bead-necklace",
@@ -339,10 +659,10 @@ export const products: Product[] = [
     name: "Cowrie drop earrings",
     creator: "Awa Diop",
     country: "Senegal",
-    verified: true,
+    verified: false,
     priceGBP: 9,
-    rating: 4.5,
-    reviews: 26,
+    rating: 0,
+    reviews: 0,
     delivery: null,
     category: "beadwork-jewellery",
     type: "Earrings",
@@ -350,6 +670,28 @@ export const products: Product[] = [
     shipsTo: ALL,
     tone: "bg-[#6D7F5B]",
     addedDaysAgo: 5,
+  },
+
+  {
+    id: "coral-wedding-bead-set",
+    name: "Coral wedding bead set",
+    creator: "Fatima Bello Beads",
+    country: "Nigeria",
+    verified: true,
+    priceGBP: 38,
+    rating: 4.9,
+    reviews: 41,
+    delivery: { minDays: 12, maxDays: 14 },
+    category: "beadwork-jewellery",
+    type: "Necklaces",
+    customSizes: false,
+    shipsTo: WITH_CANADA,
+    tone: "bg-[#A4472E]",
+    addedDaysAgo: 0,
+    colours: [
+      { name: "Coral", hex: "#C2553A" },
+      { name: "Coral and gold", hex: "#C89A3C" },
+    ],
   },
 
   // --- Bags ----------------------------------------------------------------
@@ -366,7 +708,7 @@ export const products: Product[] = [
     category: "bags",
     type: "Totes",
     customSizes: false,
-    shipsTo: ALL,
+    shipsTo: WITH_CANADA,
     tone: "bg-[#8B5A2B]",
     addedDaysAgo: 7,
   },
@@ -375,10 +717,10 @@ export const products: Product[] = [
     name: "Raffia evening clutch",
     creator: "Awa Diop",
     country: "Senegal",
-    verified: true,
+    verified: false,
     priceGBP: 17,
-    rating: 4.7,
-    reviews: 33,
+    rating: 0,
+    reviews: 0,
     delivery: { minDays: 13, maxDays: 16 },
     category: "bags",
     type: "Clutches",
@@ -464,10 +806,10 @@ export const products: Product[] = [
     name: "Mudcloth cushion covers, pair",
     creator: "Awa Diop",
     country: "Senegal",
-    verified: true,
+    verified: false,
     priceGBP: 26,
-    rating: 4.8,
-    reviews: 44,
+    rating: 0,
+    reviews: 0,
     delivery: { minDays: 15, maxDays: 18 },
     category: "home-living",
     type: "Cushions",
@@ -475,6 +817,58 @@ export const products: Product[] = [
     shipsTo: ALL,
     tone: "bg-[#6B5B4A]",
     addedDaysAgo: 26,
+  },
+  {
+    id: "adire-cushion-covers",
+    name: "Adire cushion covers",
+    creator: "Adire Lab Abeokuta",
+    country: "Nigeria",
+    verified: true,
+    priceGBP: 19,
+    rating: 4.7,
+    reviews: 27,
+    delivery: { minDays: 8, maxDays: 11 },
+    category: "home-living",
+    type: "Cushions",
+    customSizes: false,
+    shipsTo: ALL,
+    tone: "bg-[#34507A]",
+    addedDaysAgo: 9,
+  },
+  {
+    id: "adire-cushion-pair",
+    name: "Adire cushion pair",
+    creator: "Yinka Adeyemi",
+    country: "Nigeria",
+    verified: true,
+    priceGBP: 19,
+    rating: 4.6,
+    reviews: 18,
+    delivery: null,
+    category: "home-living",
+    type: "Cushions",
+    customSizes: false,
+    shipsTo: YINKA,
+    tone: "bg-[#7A2E3B]",
+    addedDaysAgo: 1,
+    stockLeft: 3,
+  },
+  {
+    id: "raffia-placemats",
+    name: "Raffia placemats, 4",
+    creator: "Awa Diop",
+    country: "Senegal",
+    verified: false,
+    priceGBP: 14,
+    rating: 0,
+    reviews: 0,
+    delivery: { minDays: 14, maxDays: 17 },
+    category: "home-living",
+    type: "Baskets",
+    customSizes: false,
+    shipsTo: ALL,
+    tone: "bg-[#C4A574]",
+    addedDaysAgo: 2,
   },
   {
     id: "bolga-basket",
@@ -492,6 +886,25 @@ export const products: Product[] = [
     shipsTo: ALL,
     tone: "bg-[#A98B5F]",
     addedDaysAgo: 18,
+  },
+
+  {
+    id: "crochet-throw-blush",
+    name: "Crochet throw, blush",
+    creator: "Adaeze Crochet",
+    country: "Nigeria",
+    verified: true,
+    priceGBP: 42,
+    rating: 4.8,
+    reviews: 22,
+    delivery: null,
+    category: "home-living",
+    type: "Throws & blankets",
+    customSizes: false,
+    shipsTo: ALL,
+    tone: "bg-[#D9B8A8]",
+    addedDaysAgo: 40,
+    soldOut: true,
   },
 
   // --- Beauty --------------------------------------------------------------
@@ -536,10 +949,10 @@ export const products: Product[] = [
     name: "Woven raffia wall set",
     creator: "Awa Diop",
     country: "Senegal",
-    verified: true,
+    verified: false,
     priceGBP: 18,
-    rating: 4.8,
-    reviews: 19,
+    rating: 0,
+    reviews: 0,
     delivery: { minDays: 18, maxDays: 18 },
     category: "art",
     type: "Wall art",
@@ -547,6 +960,23 @@ export const products: Product[] = [
     shipsTo: ALL,
     tone: "bg-[#8C5A3C]",
     addedDaysAgo: 15,
+  },
+  {
+    id: "batik-wall-hanging",
+    name: "Batik wall hanging",
+    creator: "Awa Diop",
+    country: "Senegal",
+    verified: false,
+    priceGBP: 21,
+    rating: 0,
+    reviews: 0,
+    delivery: { minDays: 16, maxDays: 21 },
+    category: "art",
+    type: "Wall art",
+    customSizes: false,
+    shipsTo: ALL,
+    tone: "bg-[#5E3B2E]",
+    addedDaysAgo: 3,
   },
   {
     id: "carved-figure",
@@ -573,4 +1003,57 @@ export function productsForCategory(slug: CategorySlug) {
     return [...products].sort((a, b) => a.addedDaysAgo - b.addedDaysAgo);
   }
   return products.filter((product) => product.category === slug);
+}
+
+export function getProduct(id: string) {
+  return products.find((product) => product.id === id);
+}
+
+export function getCreatorBySlug(slug: string) {
+  return creators.find((creator) => creator.slug === slug);
+}
+
+/** Every product names its creator, so this only misses on bad fixture data. */
+export function creatorOf(product: Product): Creator {
+  const creator = creators.find((item) => item.name === product.creator);
+  if (!creator) {
+    throw new Error(`No creator profile for "${product.creator}"`);
+  }
+  return creator;
+}
+
+export function productsByCreator(name: string) {
+  return products.filter((product) => product.creator === name);
+}
+
+const LETTER_SIZES = ["XS", "S", "M", "L", "XL"];
+const SHOE_SIZES = ["UK 4", "UK 5", "UK 6", "UK 7", "UK 8", "UK 9"];
+/** Sold by length or one size, so there is nothing to choose. */
+const UNSIZED_TYPES = ["Wrappers & fabric", "Headwraps & gele"];
+
+/** The size options a piece is offered in; empty means one size. */
+export function sizesFor(product: Product): string[] {
+  if (product.sizes) return product.sizes;
+  if (product.category === "footwear") return SHOE_SIZES;
+  if (product.category === "fashion" && !UNSIZED_TYPES.includes(product.type)) {
+    return LETTER_SIZES;
+  }
+  return [];
+}
+
+/**
+ * Made-to-measure needs body measurements, so it is offered on clothing only.
+ * Other pieces flagged `customSizes` (bead lengths, shoe widths) take a note.
+ */
+export function offersMeasurements(product: Product) {
+  return (
+    product.customSizes &&
+    product.category === "fashion" &&
+    sizesFor(product).length > 0
+  );
+}
+
+/** A shop can be browsed before its identity is confirmed, but not ordered from. */
+export function isOpenForOrders(creator: Creator) {
+  return creator.identity === "confirmed";
 }

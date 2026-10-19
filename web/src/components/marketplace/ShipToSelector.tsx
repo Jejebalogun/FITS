@@ -1,17 +1,22 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 
 import { markets, type MarketCode } from "@/data/markets";
 import { useMarket } from "@/components/marketplace/MarketProvider";
 import { useDismiss } from "@/lib/use-dismiss";
 
 export default function ShipToSelector() {
-  const { market, setMarket, detected } = useMarket();
-  const [open, setOpen] = useState(false);
+  const {
+    market,
+    setMarket,
+    detected,
+    pickerOpen: open,
+    setPickerOpen: setOpen,
+  } = useMarket();
   const wrapper = useRef<HTMLDivElement>(null);
 
-  const close = useCallback(() => setOpen(false), []);
+  const close = useCallback(() => setOpen(false), [setOpen]);
   useDismiss(wrapper, open, close);
 
   function choose(code: MarketCode) {
@@ -23,7 +28,7 @@ export default function ShipToSelector() {
     <div ref={wrapper} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
         // Highlighted while the country is still a guess, so it invites a check.

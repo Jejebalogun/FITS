@@ -34,7 +34,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
   return (
     <MarketProvider>
-      <MarketplaceHeader activeCategory={category.slug} cartCount={0} />
+      <MarketplaceHeader activeCategory={category.slug} />
       <CategoryBrowser
         category={category}
         products={productsForCategory(category.slug)}

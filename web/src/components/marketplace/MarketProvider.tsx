@@ -24,6 +24,14 @@ type MarketContextValue = {
   /** True until the visitor has confirmed or changed the detected country. */
   detected: boolean;
   confirmDetected: () => void;
+  /**
+   * False until a stored choice has been read. Prices rendered before then are
+   * in the default currency and may be about to change, so lists wait for it.
+   */
+  ready: boolean;
+  /** The header's ship-to menu, opened from elsewhere ("Change ship-to"). */
+  pickerOpen: boolean;
+  setPickerOpen: (open: boolean) => void;
 };
 
 const MarketContext = createContext<MarketContextValue | null>(null);
@@ -31,6 +39,8 @@ const MarketContext = createContext<MarketContextValue | null>(null);
 export function MarketProvider({ children }: { children: React.ReactNode }) {
   const [market, setMarketState] = useState<Market>(defaultMarket);
   const [detected, setDetected] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // A real build would geolocate here. Restoring a prior choice stands in, and
   // runs after mount so server and client agree on the first render.
@@ -47,6 +57,7 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     } else {
       setDetected(true);
     }
+    setReady(true);
   }, []);
 
   const setMarket = useCallback((code: MarketCode) => {
@@ -69,8 +80,16 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ market, setMarket, detected, confirmDetected }),
-    [market, setMarket, detected, confirmDetected],
+    () => ({
+      market,
+      setMarket,
+      detected,
+      confirmDetected,
+      ready,
+      pickerOpen,
+      setPickerOpen,
+    }),
+    [market, setMarket, detected, confirmDetected, ready, pickerOpen],
   );
 
   return (

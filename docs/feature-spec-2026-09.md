@@ -247,6 +247,25 @@ The auth cluster, from the designer's first Figma set (2026-10-02):
 | `/onboarding/role` | 30 | **placeholder only** — sign-up routes here per Band 1; awaiting design |
 | `/category/[slug]` | 2 | 8 categories; filters, sort, grid/list, pagination, ship-to market switching, geo banner, empty state |
 | `/shop` | 1 | Discovery Hub: hero, craft tray, new from verified creators, trending, feed strip, countries, spotlight, sell CTA |
+| `/search` | 3 | Pieces / Creators tabs, typo correction with "search instead for", no-results with "try instead", filters shared with category |
+| `/product/[id]` | 8 | gallery, sizes + size guide, custom measurements (saved for reuse), colour, note to creator, can't-ship-here, sold out, added-to-cart popover |
+| `/cart` | 9 | one parcel per creator with its own arrival window and shipping, duty line, sold-out and can't-ship lines excluded from totals, empty state |
+| `/creator/[handle]` | 4 | cover, follow and share, catalogue with shop shelves and sort, story, reviews with rating breakdown, new-shop "verification in progress" state |
+| `/feed` | 32 | posts from followed creators, Everything / New pieces / Making of, post menu (hide, fewer making-of, unfollow, report) with undo, save to a list, offline banner, caught up, follow-nobody introductions, skeleton |
+| `/account/wishlist` | 12 | saved pieces and named lists, new list (with link sharing), rename, copy link, add all to cart, price-dropped / only N left / not yet orderable / no longer available, empty state |
+| `/checkout` | 7 + 10 | guest details or saved addresses (add, edit, default, label), per-country address rules with a UK postcode lookup, parcels and dates; card with brand detection and specific number errors, bank approval in app or by text code, decline, cancel; Apple Pay, PayPal; pay in naira by Paystack transfer (30-minute account), Nigerian card or USSD |
+| `/checkout/done` | — | order number, what each creator does next and when, track or keep shopping |
+| `/account/orders` | 13 | account sidebar; In progress / Delivered / Cancelled and refunded; per-piece status; confirm arrival from the list |
+| `/orders/[id]` | 11 | one card per creator's parcel: confirming (48h countdown), packing, being made (updates, message), running late (wait or cancel and refund), on its way (DHL events), delivered (confirm or report a problem), confirmed (review), declined / cancelled (refund, similar pieces); delivery, paid and refunded; money-held, refunds or order-complete note |
+
+The category page (Screen 2) also gained the second design pass: white category row, a loading
+skeleton while the ship-to market is read, and a "no pieces match" panel that names the filters
+ruling everything out and counts what removing each brings back. The header search suggests
+phrases, creators and pieces as you type.
+
+Cart, saved pieces and measurements live in `ShopperProvider`, held in the root layout and
+remembered in `localStorage`. Search is a local stand-in in `web/src/lib/search.ts`; parcel, duty
+and total rules are in `web/src/lib/cart.ts`.
 
 Shared pieces live in `web/src/components/auth/`; rules in `web/src/lib/auth-validation.ts`;
 mock accounts in `web/src/data/accounts.ts` (`amara.obi@gmail.com` / `fitslagos1` signs in,
@@ -278,6 +297,70 @@ Decisions taken from the designs, all worth confirming:
 - **Facet counts are the designer's illustrative numbers** (412 dresses, 612 from Nigeria) while
   the result count is derived from the real mock catalogue of 24 pieces. So the sidebar says 412
   and the heading says 8. Wire both to the same source once a search backend exists.
+- **Duty is a placeholder rate per market** (10% of pieces plus shipping for the UK). It matches
+  the designs' one-piece cart (£3.60) but not the two-piece one (designs say £6.40, the rule gives
+  £7.00), because the designer's figures do not follow a single rate. Needs a real duty source.
+- **Sold out has no live trigger yet.** Set `soldOut: true` on a product in the fixtures to see the
+  product page and cart states; a real build needs stock from the backend.
+- **Shop verification and the verified badge are two things.** The storefront designs show a new
+  shop as "verification in progress" with ordering closed, while the spec's verified badge is a
+  paid visibility boost. Built as `identity: "pending" | "confirmed"` (gates ordering on the PDP,
+  cart and cards) alongside the existing `verified` badge. Confirm that reading.
+- **Awa Diop is the pending shop**, following the storefront designs, so Awa's pieces now show
+  "Not yet orderable" and no ratings everywhere — earlier search designs showed Awa as verified.
+- **Storefront copy avoids pronouns** ("In Yinka's words" rather than "In her words"), since
+  creators have not told us theirs. Worth adding a pronoun field to the creator profile if the
+  designs want them.
+- **The storefront video/post feed tab** from the spec's Screen 4 note is not in these designs and
+  is not built.
+- **The feed designs are a post feed, not the swipe-to-cart video feed** the feature list
+  describes for Screen 32. Built as designed; the `/shop` feed strip still links to
+  `/feed?clip=…`, which this page ignores. Decide whether video clips join this feed or live
+  elsewhere.
+- **Saved pieces no longer need an account.** Hearts always worked signed out, but the header
+  sent signed-out visitors to sign-up instead of their saved list. Both now go to
+  `/account/wishlist`, which says "Saved on this device" with a log-in link when signed out.
+- **List share links are not real yet.** "Copy share link" copies a URL that only works on the
+  owner's device, because lists live in `localStorage`. Sharing needs accounts and a backend.
+- **Saved-piece alerts are promised but not built.** The empty state's copy ("We'll tell you if
+  the price drops…") comes from the design; nothing sends those notifications yet.
+- **Sized pieces can't be added from a list in one tap.** Their card says "Choose size" and opens
+  the product page, and "Add all to cart" skips them and says how many need a size.
+- **Guest checkout shares `/checkout`** instead of living at `/checkout/guest`. A signed-out
+  buyer gets the guest form on the delivery step; everything after is identical.
+- **Payments are a stand-in.** Every valid card goes to the bank-approval screen and approves
+  after four seconds (or with any 6-digit text code). Card `4000 0000 0000 0002` — Stripe's own
+  decline test card — is declined. Apple Pay, PayPal, transfer and USSD succeed when confirmed.
+  The design's card number (…4417) fails the Luhn check, so it shows as invalid; use
+  `4921 8832 1190 4419` to try it.
+- **Paying in naira from abroad converts the destination total**, so a UK order's £76.40
+  becomes ₦152,800 at the mock rate, duty included. The "rate locked for 15 minutes" is copy only.
+- **Totals differ from the checkout designs by the duty rule** noted above: the designs show
+  £6.40 duty on the two-parcel order, the placeholder rule gives £7.00.
+- **The address form has an optional "Call it" field** (Home, Work…) that the design lacks;
+  without it there is no way to get the saved-address names the delivery step shows.
+- **"Track this order" links to `/orders/[id]`**, which is not built yet. Orders are kept on the
+  device, ready for that page.
+- **Next-step copy names the creator** ("Yinka makes it, with progress photos") where the design
+  used "She" and "He".
+- **Order states come from a mock history.** Signing in as `amara.obi@gmail.com` shows seven
+  demo orders covering every state (`web/src/data/orders.ts`, dated relative to today). Orders
+  placed through checkout wait for the creator and, with nothing to accept them, are refunded
+  automatically after 48 hours — the promise the page makes. The buyer's own actions (confirm,
+  wait, cancel, report, review) are saved and change the page.
+- **Rules the designs imply, now in code:** a delivered parcel confirms itself after 7 days; a
+  late parcel counts as "happy to wait" after 3 days without an answer; a refund is the piece
+  plus its parcel's delivery and duty.
+- **"There's a problem" opens a short inline report** (reason and note) that holds payment, in
+  place of the separate dispute screen (Screen 15, `/orders/[id]/dispute`, not designed yet).
+- **"Message Yinka" and "Write a review" work inline.** The message is not sent anywhere yet;
+  the review is saved on the device and shown back on the order.
+- **Account sidebar links that are not built yet:** My measurements, Delivery addresses,
+  Payments, Settings. "Following" goes to the feed, where follows are managed.
+- **Copy names the creator** ("Yinka confirms the piece can be made to your sizes") where the
+  designs used "She'll confirm she can make it".
+- **Canada was added as a ship-to market** because the "can't ship" designs use it. Only a few
+  shops send there, so most pieces show that state.
 - **Delivery windows are shown as a span** ("Arrives in 12–14 days") against the single committed
   window the feature list describes. Confirm whether the creator commits to a range or one date.
 
